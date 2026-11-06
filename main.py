@@ -1,4 +1,6 @@
 import tkinter as tk
+import textwrap
+
 from typing_test import (
     start_timer, 
     stop_timer,
@@ -6,6 +8,15 @@ from typing_test import (
     get_elapsed_time, 
     calculate_wpm, 
     calculate_accuracy)
+
+from keystroke_tracker import (
+    keystrokes,
+    record_keystroke,
+    reset_keystrokes
+)
+
+############################################################
+############################################################
 
 # Color palette
 BG = "#FFFDE8" 
@@ -180,6 +191,8 @@ restart_button = tk.Button(
 
 restart_button.pack(pady=10)
 
+############################################################
+############################################################
 
 # incorrect vs correct characters
 def passage_update_colors():
@@ -221,10 +234,53 @@ def passage_update_colors():
     # disable editing again
     passage_display.config(state="disabled")
 
-    
+# track keys
+def track_keys(event):
+
+    # ignore keys being pressed after test complete
+    if typing_input.cget("state") == "disabled":
+        return
+
+    typed_text = typing_input.get()
+
+    position = typing_input.index(tk.INSERT)
+
+    # ignoring backspaces
+    if event.keysym == "BackSpace":
+
+        record_keystroke(
+
+            "Backspace",
+            None,
+            position
+
+        )
+
+        return
+
+    # ignoring other non char keys
+    if not event.char or not event.char.isprintable():
+
+        return
+
+    # when passage ends, stop recording
+    if position >= len(passage):
+        return
+
+    expected = passage[position]
+
+    record_keystroke(
+        event.char,
+        expected,
+        position
+    )
+
 # update results
 def update_results(event = None):
 
+    if typing_input.cget("state") == "disabled":
+        return
+    
     typed_text = typing_input.get()
 
     # start counting when first character is typed
@@ -235,6 +291,10 @@ def update_results(event = None):
     if len(typed_text) >= len(passage):
 
         stop_timer()
+
+        print("\n--- Typing session data")
+        for keystroke in keystrokes:
+            print(keystroke)
 
         #stop typing
         typing_input.config(state = "disabled")
@@ -253,19 +313,17 @@ def update_results(event = None):
     # call func to update colors
     passage_update_colors()
 
-# update results when the user types
+# update results when the user types & track keystroke
+typing_input.bind("<KeyPress>", track_keys)
 typing_input.bind("<KeyRelease>", update_results)
 
 # restart timer & results
 def restart_timer():
 
-    if get_elapsed_time() > 0:
+    if get_elapsed_time() > 0 and typing_input.cget("state") == "normal":
         update_results()
 
     root.after(100, restart_timer)
-
-
-import textwrap
 
 def resize_passage_display():
 
@@ -293,6 +351,7 @@ def resize_passage_display():
 def restart():
 
     reset_timer()
+    reset_keystrokes()
 
     typing_input.config(state = "normal")
     typing_input.delete(0, tk.END)
