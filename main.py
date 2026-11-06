@@ -1,5 +1,5 @@
 import tkinter as tk
-from typing_test import start_timer, get_elapsed_time, calculate_wpn, calculate_accuracy
+from typing_test import start_timer, get_elapsed_time, calculate_wpm, calculate_accuracy
 
 # Color palette
 BG = "#FFFDE8" 
@@ -42,7 +42,7 @@ passage_display = tk.Text(
     bg=BG, 
     wrap="word",
     width=65,
-    height=4,
+    height=1,
     relief="flat",
     bd=0,
     highlightthickness=0,
@@ -50,7 +50,7 @@ passage_display = tk.Text(
     
     )
 
-passage_display.pack(pady=20)
+passage_display.pack(pady= (15, 5))
 passage_display.insert("1.0", passage)
 
 # character colors
@@ -76,7 +76,7 @@ input_container = tk.Frame(
     padx=15
 )
 
-input_container.pack(pady=25)
+input_container.pack(pady=(10,15))
 
 # Input field 
 typing_input = tk.Entry(
@@ -205,7 +205,7 @@ def update_results(event = None):
 
     # calculate results
     elapsed = get_elapsed_time()
-    wpm = calculate_wpn(typed_text)
+    wpm = calculate_wpm(typed_text)
     accuracy = calculate_accuracy(typed_text, passage)
     
     # update results label
@@ -226,6 +226,35 @@ def restart_timer():
         update_results()
 
     root.after(100, restart_timer)
+
+
+import textwrap
+
+def resize_passage_display():
+
+    # chars per line
+    max_width = 65
+
+    lines = 0
+
+
+    for paragraph in passage.split("\n"):
+        
+        wrapped = textwrap.wrap(
+            
+            paragraph,
+            width=max_width,
+            break_long_words=True,
+            replace_whitespace=False
+        
+        )
+
+        lines += max(3, len(wrapped))
+
+    passage_display.config(height=lines)
+
+
+resize_passage_display()
 
 restart_timer() 
 passage_update_colors()

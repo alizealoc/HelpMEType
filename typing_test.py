@@ -15,7 +15,7 @@ def get_elapsed_time():
 
     return time.perf_counter() - start_time
 
-def calculate_wpn(typed_text):
+def calculate_wpm(typed_text):
     elapsed_time = get_elapsed_time()
 
     if elapsed_time <= 0:
