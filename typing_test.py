@@ -1,6 +1,7 @@
 import time
 
 start_time = None
+end_time = None
 
 def start_timer():
     global start_time
@@ -8,13 +9,28 @@ def start_timer():
     if start_time is None:
         start_time = time.perf_counter()
 
+def stop_timer():
+    global end_time
+
+    if start_time is not None and end_time is None:
+        end_time = time.perf_counter()
+
 def get_elapsed_time():
     
     if start_time is None:
         return 0
 
+    if end_time is not None:
+        return end_time - start_time
+
     return time.perf_counter() - start_time
 
+def reset_timer():
+    global start_time, end_time
+
+    start_time = None
+    end_time = None
+    
 def calculate_wpm(typed_text):
     elapsed_time = get_elapsed_time()
 

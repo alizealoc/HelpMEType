@@ -1,9 +1,15 @@
 import tkinter as tk
-from typing_test import start_timer, get_elapsed_time, calculate_wpm, calculate_accuracy
+from typing_test import (
+    start_timer, 
+    stop_timer,
+    reset_timer,
+    get_elapsed_time, 
+    calculate_wpm, 
+    calculate_accuracy)
 
 # Color palette
 BG = "#FFFDE8" 
-ACCENT = "#2323F0"
+ACCENT = "#3C3CEE"
 TEXT = "#000000"
 INPUT_BG = "#EDEBD4"
 CORRECT = "#268F2C"
@@ -153,6 +159,28 @@ time_label = tk.Label(
 
 time_label.grid(row=0, column=2)
 
+# restart button
+time_label.grid(row = 0, column = 2)
+
+restart_button = tk.Button(
+
+    root,
+    text="Restart Test",
+    font=("Consolas", 11, "bold"),
+    fg="white",
+    bg=ACCENT,
+    activeforeground="white",
+    activebackground=ACCENT,
+    relief="flat",
+    bd=0,
+    padx=20,
+    pady=10,
+    cursor="hand2"
+)
+
+restart_button.pack(pady=10)
+
+
 # incorrect vs correct characters
 def passage_update_colors():
 
@@ -202,6 +230,15 @@ def update_results(event = None):
     # start counting when first character is typed
     if typed_text:
         start_timer()
+
+    # check if passage complete
+    if len(typed_text) >= len(passage):
+
+        stop_timer()
+
+        #stop typing
+        typing_input.config(state = "disabled")
+        typing_input.config(disabledbackground=INPUT_BG)
 
     # calculate results
     elapsed = get_elapsed_time()
@@ -253,9 +290,24 @@ def resize_passage_display():
 
     passage_display.config(height=lines)
 
+def restart():
+
+    reset_timer()
+
+    typing_input.config(state = "normal")
+    typing_input.delete(0, tk.END)
+
+    # reset results
+    wpm_label.config(text="WPM: 0")
+    accuracy_label.config(text="Accuracy: 0%")
+    time_label.config(text="Time: 0s")
+
+    passage_update_colors()
+    typing_input.focus_set()
+
+restart_button.config(command=restart)
 
 resize_passage_display()
-
 restart_timer() 
 passage_update_colors()
 
